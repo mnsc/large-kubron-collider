@@ -22,6 +22,8 @@ jobs:
         image:
           - name: kubron-collider-magnet
             context: ./services/magnet
+          - name: kubron-experiment-cake
+            context: ./experiments/cake
           # add more experiments here
 
     steps:
