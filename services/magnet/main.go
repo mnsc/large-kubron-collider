@@ -28,24 +28,31 @@ type ExperimentPayload struct {
 }
 
 var (
-	myID         int
-	ringSize     int
-	baseName     string
-	serviceDNS   string
+	myID          int
+	ringSize      int
+	baseName      string
+	serviceDNS    string
 	experimentURL string
-	httpClient   *http.Client
+	httpClient    *http.Client
 )
 
 func main() {
-	// Config from env
-	ringSize = mustGetIntEnv("RING_SIZE")                       // e.g. "1000"
-	baseName = getEnv("RING_BASENAME", "magnet")                // StatefulSet name
-	serviceDNS = getEnv("RING_SERVICE", "magnets")              // headless Service name
-	experimentURL = getEnv("EXPERIMENT_URL", "")                // e.g. "http://experiment-cake:8080/observe"
+	ringSize = mustGetIntEnv("RING_SIZE")          // e.g. "1000"
+	baseName = getEnv("RING_BASENAME", "magnet")   // StatefulSet name
+	serviceDNS = getEnv("RING_SERVICE", "magnets") // headless Service name
+	experimentURL = getEnv("EXPERIMENT_URL", "")   // e.g. "http://experiment-cake:8080/observe"
 	addr := getEnv("HTTP_ADDR", ":8080")
 
-	myID = detectMyID(baseName)
-	log.Printf("magnet-%d starting, ringSize=%d, experimentURL=%q", myID, ringSize, experimentURL)
+	if v := os.Getenv("MAGNET_ID"); v != "" {
+		n, err := strconv.Atoi(v)
+		if err != nil {
+			log.Fatalf("invalid MAGNET_ID %q: %v", v, err)
+		}
+		myID = n
+	} else {
+		myID = detectMyID(baseName)
+	}
+	log.Printf("v1.1 - magnet-%d starting, ringSize=%d, experimentURL=%q", myID, ringSize, experimentURL)
 
 	httpClient = &http.Client{
 		Timeout: 5 * time.Second,
@@ -69,6 +76,7 @@ func main() {
 
 func hopHandler(w http.ResponseWriter, r *http.Request) {
 	var payload HopPayload
+
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		http.Error(w, "invalid JSON body", http.StatusBadRequest)
 		return
@@ -80,6 +88,7 @@ func hopHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Done? send to experiment
 	if payload.Current >= payload.End {
+	    log.Printf("Reached end %d", payload.End)
 		if experimentURL == "" {
 			http.Error(w, "experiment URL not configured", http.StatusInternalServerError)
 			return
@@ -152,6 +161,8 @@ func hopHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
+
+    log.Printf("%d/%d->%d", payload.Current, payload.End, nextID)
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
