@@ -1,0 +1,19 @@
+meta {
+  name: Request to cake experiment observe endpoint
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8081/observe
+  body: json
+  auth: none
+}
+
+body:json {
+  {"current":5, "magnet_name": "magnet-4"}
+}
+
+assert {
+  res.body["magnet_name"]: eq magnet-4
+}

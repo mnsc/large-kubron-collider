@@ -1,0 +1,19 @@
+meta {
+  name: Request to magnet
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/hop
+  body: json
+  auth: none
+}
+
+body:json {
+  {"current":1, "end": 50}
+}
+
+assert {
+  res.body["magnet_name"]: eq magnet-4
+}
