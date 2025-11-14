@@ -21,9 +21,7 @@ type HopPayload struct {
 
 // What magnets send to the experiment
 type ExperimentPayload struct {
-	End        int    `json:"end"`
 	Current    int    `json:"current"`
-	MagnetID   int    `json:"magnet_id"`
 	MagnetName string `json:"magnet_name"`
 }
 
@@ -37,10 +35,10 @@ var (
 )
 
 func main() {
-	ringSize = mustGetIntEnv("RING_SIZE")          // e.g. "1000"
-	baseName = getEnv("RING_BASENAME", "magnet")   // StatefulSet name
-	serviceDNS = getEnv("RING_SERVICE", "magnets") // headless Service name
-	experimentURL = getEnv("EXPERIMENT_URL", "")   // e.g. "http://experiment-cake:8080/observe"
+	ringSize = mustGetIntEnv("RING_SIZE")
+	baseName = getEnv("RING_BASENAME", "magnet")
+	serviceDNS = getEnv("RING_SERVICE", "magnets")
+	experimentURL = getEnv("EXPERIMENT_URL", "")
 	addr := getEnv("HTTP_ADDR", ":8080")
 
 	if v := os.Getenv("MAGNET_ID"); v != "" {
@@ -88,16 +86,14 @@ func hopHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Done? send to experiment
 	if payload.Current >= payload.End {
-	    log.Printf("Reached end %d", payload.End)
+		log.Printf("Reached end %d", payload.End)
 		if experimentURL == "" {
 			http.Error(w, "experiment URL not configured", http.StatusInternalServerError)
 			return
 		}
 
 		exp := ExperimentPayload{
-			End:        payload.End,
 			Current:    payload.Current,
-			MagnetID:   myID,
 			MagnetName: fmt.Sprintf("%s-%d", baseName, myID),
 		}
 
@@ -162,7 +158,7 @@ func hopHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-    log.Printf("%d/%d->%d", payload.Current, payload.End, nextID)
+	log.Printf("%d/%d->%d", payload.Current, payload.End, nextID)
 
 	resp, err := httpClient.Do(req)
 	if err != nil {

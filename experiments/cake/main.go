@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -9,18 +10,14 @@ import (
 )
 
 type ExperimentPayload struct {
-	End        int    `json:"end"`
 	Current    int    `json:"current"`
-	MagnetID   int    `json:"magnet_id"`
 	MagnetName string `json:"magnet_name"`
 }
 
 type CakeResult struct {
 	Experiment string    `json:"experiment"`
 	Timestamp  time.Time `json:"timestamp"`
-	End        int       `json:"end"`
 	Current    int       `json:"current"`
-	MagnetID   int       `json:"magnet_id"`
 	MagnetName string    `json:"magnet_name"`
 	Message    string    `json:"message"`
 }
@@ -40,15 +37,13 @@ func main() {
 		result := CakeResult{
 			Experiment: experimentName,
 			Timestamp:  time.Now().UTC(),
-			End:        payload.End,
 			Current:    payload.Current,
-			MagnetID:   payload.MagnetID,
 			MagnetName: payload.MagnetName,
-			Message:    "All kubrons successfully collided 🎂",
+			Message:    fmt.Sprintf("Kubron of size %d observed 🎂", payload.Current),
 		}
 
-		log.Printf("[%s] detected event from %s (id=%d) end=%d current=%d",
-			experimentName, payload.MagnetName, payload.MagnetID, payload.End, payload.Current)
+		log.Printf("[%s] detected event from %s current=%d",
+			experimentName, payload.MagnetName, payload.Current)
 
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(result)
