@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "lkc.magnets.serviceName" . }}
+spec:
+  clusterIP: None
+  selector:
+    app: {{ include "lkc.magnet.fullname" . }}
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080

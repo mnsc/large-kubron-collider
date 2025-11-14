@@ -1,0 +1,13 @@
+{{- if .Values.experiment.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "lkc.experiment.fullname" . }}
+spec:
+  selector:
+    app: {{ include "lkc.experiment.fullname" . }}
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  {{- end }}

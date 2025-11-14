@@ -1,0 +1,26 @@
+{{- if .Values.experiment.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "lkc.experiment.fullname" . }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "lkc.experiment.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "lkc.experiment.fullname" . }}
+    spec:
+      containers:
+        - name: experiment
+          image: "{{ .Values.experiment.image.repository }}:{{ default .Chart.AppVersion .Values.experiment.image.tag }}"
+          imagePullPolicy: {{ .Values.experiment.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: EXPERIMENT_NAME
+              value: "{{ .Values.experiment.experimentNameEnv }}"
+{{- end }}

@@ -1,0 +1,20 @@
+magnet:
+  replicaCount: 5
+  image:
+    repository: ghcr.io/mnsc/kubron-collider-magnet
+    tag: "main"
+    pullPolicy: IfNotPresent
+
+experiment:
+  enabled: true
+  name: cake
+  image:
+    repository: ghcr.io/mnsc/kubron-experiment-cake
+    tag: "main"
+    pullPolicy: IfNotPresent
+  serviceName: experiment-cake
+  port: 8080
+  experimentNameEnv: CAKE
+
+# For local testing: override to specific tags
+imagePullSecrets: []

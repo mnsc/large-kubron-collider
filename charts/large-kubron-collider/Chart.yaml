@@ -1,0 +1,6 @@
+apiVersion: v2
+name: large-kubron-collider
+description: "Large Kubron Collider (LKC) - magnets + experiment"
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
